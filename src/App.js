@@ -6,6 +6,7 @@ import NotFound from "./components/NotFound";
 import MainStock from "./components/MainStock"
 import MainBarangMasuk from "./components/MainBarangMasuk"
 import MainBarangKeluar from "./components/MainBarangKeluar"
+import MainBarangReject from "./components/MainBarangReject"
 import "./App.css";
 
 // react date range style 
@@ -17,12 +18,15 @@ function App() {
     <Router>
       <Container fluid>
         <Header />
-        <Row className="body-content">
+      </Container>
+      <Container fluid className="mt-5 position-fixed pt-2">
+        <Row className="mt-4">
           <Sidebar />
           <Routes>
             <Route path="/" element={<MainStock />} />
             <Route path="/barangmasuk" element={<MainBarangMasuk />} />
             <Route path="/barangkeluar" element={<MainBarangKeluar />} />
+            <Route path="/barangreject" element={<MainBarangReject />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Row>

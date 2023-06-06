@@ -17,4 +17,9 @@ export const sidebarData = [
     icon: <BsIcon.BsBoxArrowUp />,
     link: "/barangkeluar",
   },  
+  {
+    title: "Barang Reject",
+    icon: <BsIcon.BsBoxArrowUp />,
+    link: "/barangreject",
+  },  
 ];  
