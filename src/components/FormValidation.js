@@ -19,3 +19,23 @@ export const stockValidation = yup.object().shape({
     .positive("Harap masukkan input dengan benar")
     .required("*Required"),
 });
+
+export const barangValidation = yup.object().shape({
+  nama_barang: yup.string().required("*Required"),
+  merk: yup.string().required("*Required"),
+  jumlahBarangMasuk: yup
+    .number()
+    .typeError("Jumlah barang harus berupa angka")
+    .positive("Harap masukkan input dengan benar")
+    .max(1000001, "Harap masukkan input dengan benar")
+    .required("*Required"),
+  jumlahBarangReject: yup
+    .number()
+    .typeError("Jumlah barang harus berupa angka")
+    .positive("Harap masukkan input dengan benar")
+    .max(1000001, "Harap masukkan input dengan benar"),
+  tanggal: yup.string().required("*Required"),
+  satuan: yup
+    .string()
+    .required("*Required"),
+});

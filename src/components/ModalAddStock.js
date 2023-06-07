@@ -72,7 +72,7 @@ function ModalAddStock({
       values.satuan === "" ||
       values.harga === ""
     ) {
-      setSubmit(!submitted);
+      setSubmit(false);
     }
   };
 

@@ -33,12 +33,27 @@ function MainStock() {
     });
   }, []);
 
-  const handleChange = (evt) => {
+  const handleChangeSearch = (evt) => {
     setQuery(evt.target.value);
   };
 
-  const handleClick = () => {
+  const handleClickSearch = () => {
     setisActive(!isActive);
+    if (!isActive) {
+      axios
+        .get(
+          Url +
+            `/stock/search?search="${Query}"`
+        )
+        .then((res) => {
+          setStock(res.data);
+        });
+    } else {
+      axios.get(Url + "/stock").then((res) => {
+        setStock(res.data);
+      });
+      setQuery("")
+    }
   };
 
   const openModal = () => {
@@ -55,6 +70,7 @@ function MainStock() {
   };
 
   const addDataModal = (values, actions) => {
+    console.log(values);
     if (!isEdit) {
       axios
         .post(Url + "/stock", values)
@@ -93,25 +109,26 @@ function MainStock() {
           setStock(
             Stock.map((val) => {
               if (val.id_barang === values.id_barang) {
-                console.log("test")
-                return {...val, 
+                console.log("test");
+                return {
+                  ...val,
                   nama_barang: values.nama_barang,
                   jenis_barang: values.jenis_barang,
                   merk: values.merk,
                   jumlah: values.jumlah,
                   satuan: values.satuan,
                   harga: values.harga,
-                }
+                };
               } else {
-                return val
+                return val;
               }
             })
-          )
+          );
         })
         .catch((err) => console.log(err));
     }
   };
-
+  console.log(isEdit);
   const deleteData = (id, key) => {
     Swal.fire({
       title: "Are you sure?",
@@ -129,7 +146,7 @@ function MainStock() {
             setStock(Stock.filter((item, index) => index !== key));
             Toast.fire({
               icon: "success",
-              title: "Add stock successfully",
+              title: "Delete data successfully",
             });
           })
           .catch((err) => {
@@ -149,7 +166,7 @@ function MainStock() {
       <Container>
         <Row className="title">
           <Col>
-            <h1>Barang Keluar</h1>
+            <h1>Stock</h1>
           </Col>
         </Row>
         <Row className="content mt-3">
@@ -164,12 +181,12 @@ function MainStock() {
                     className="search"
                     type="text"
                     value={Query}
-                    onChange={handleChange}
+                    onChange={handleChangeSearch}
                     name="search"
                     placeholder="Search..."
                   ></input>
-                  <button onClick={handleClick}>
-                    {isActive ? <BsIcon.BsX /> : <BsIcon.BsSearch />}
+                  <button onClick={handleClickSearch}>
+                    {Query !== "" && isActive ? <BsIcon.BsX /> : <BsIcon.BsSearch />}
                   </button>
                 </div>
               </Col>

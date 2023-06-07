@@ -1,11 +1,14 @@
 import { Container, Row, Col, Button } from "react-bootstrap";
 import Table from "react-bootstrap/Table";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import * as BsIcon from "react-icons/bs";
+import Swal from "sweetalert2";
+import ModalTransaksiBarang from "./ModalTransaksiBarang";
 
 function MainBarangMasuk() {
   const [barangMasuk, setbarangMasuk] = useState([]);
+  const [stock, setStock] = useState([]);
   const [isActive1, setisActive1] = useState(false);
   const [isActive2, setisActive2] = useState(false);
   const [isActive3, setisActive3] = useState(false);
@@ -16,14 +19,30 @@ function MainBarangMasuk() {
     search: "",
   });
   const Url = "http://localhost:3001";
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "bottom-end",
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: false,
+    didOpen: (toast) => {
+      toast.addEventListener("mouseenter", Swal.stopTimer);
+      toast.addEventListener("mouseleave", Swal.resumeTimer);
+    },
+  });
+  const [showModal, setShow] = useState(false);
+  const [isEdit, setEdit] = useState(false);
+  const editModal = useRef(null);
 
   useEffect(() => {
     axios.get(Url + "/barangmasuk").then((res) => {
       setbarangMasuk(res.data);
     });
-  }, []);
 
-  const handleChange = (evt) => {
+    axios.get(Url + "/stock").then((res) => setStock(res.data));
+  }, []);
+  
+  const handleChangeSearch = (evt) => {
     const value = evt.target.value;
     setQuery({
       ...Query,
@@ -31,7 +50,7 @@ function MainBarangMasuk() {
     });
   };
 
-  const handleClick = (name) => {
+  const handleClickSearch = (name) => {
     if (name === "selectDate") {
       setisActive1(!isActive1);
       if (!isActive1 && Query.selectDate !== "") {
@@ -96,7 +115,104 @@ function MainBarangMasuk() {
     }
   };
 
-  // console.log(Query);
+  const openModal = () => {
+    setShow(!showModal);
+  };
+
+  const handleEdit = (val) => {
+    setShow(!showModal);
+    setEdit(true);
+    editModal.current(val);
+  };
+
+  const addDataModal = (values, actions) => {
+    console.log(values)
+    if (!isEdit) {
+      axios
+        .post(Url + "/barangmasuk", values)
+        .then((res) => {
+          if (typeof res.data === "string") {
+            Swal.fire({
+              icon: "warning",
+              title: res.data,
+              showConfirmButton: false,
+              timer: 3000,
+            });
+          } else {
+            setbarangMasuk([...barangMasuk, values]);
+            setShow(false);
+            actions.resetForm();
+            Toast.fire({
+              icon: "success",
+              title: "Add data successfully",
+            });
+          }
+        })
+        .catch((err) => console.log(err));
+    } else {
+      axios
+        .put(Url + `/barangmasuk/${values.id_barang}`, values)
+        .then((res) => {
+          Toast.fire({
+            icon: "success",
+            title: "Edit data successfully",
+          });
+          setShow(false);
+          setEdit(false);
+          actions.resetForm();
+          setbarangMasuk(
+            barangMasuk.map((val) => {
+              if (val.id_barangMasuk === values.id_barang) {
+                return {
+                  ...val,
+                  nama_barang: values.nama_barang,
+                  jenis_barang: values.jenis_barang,
+                  merk: values.merk,
+                  jumlah: values.jumlah,
+                  satuan: values.satuan,
+                  harga: values.harga,
+                };
+              } else {
+                return val;
+              }
+            })
+          );
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+
+  const handleDelete = (id, key) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#009165",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .delete(Url + `/barangmasuk/${id}`)
+          .then((res) => {
+            setbarangMasuk(barangMasuk.filter((item, index) => index !== key));
+            Toast.fire({
+              icon: "success",
+              title: "Delete data successfully",
+            });
+          })
+          .catch((err) => {
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Something went wrong!",
+            });
+            console.log(err);
+          });
+      }
+    });
+  };
 
   return (
     <Col xs={10} className="main">
@@ -119,10 +235,14 @@ function MainBarangMasuk() {
                     type="date"
                     value={Query.selectDate}
                     name="selectDate"
-                    onChange={handleChange}
+                    onChange={handleChangeSearch}
                   ></input>
-                  <button onClick={() => handleClick("selectDate")}>
-                    {isActive1 && Query.selectDate !== "" ? <BsIcon.BsX /> : <BsIcon.BsSearch />}
+                  <button onClick={() => handleClickSearch("selectDate")}>
+                    {isActive1 && Query.selectDate !== "" ? (
+                      <BsIcon.BsX />
+                    ) : (
+                      <BsIcon.BsSearch />
+                    )}
                   </button>
                 </div>
                 <div className="start-date-wrapper mt-2">
@@ -131,23 +251,27 @@ function MainBarangMasuk() {
                     type="date"
                     value={Query.startDate}
                     name="startDate"
-                    onChange={handleChange}
+                    onChange={handleChangeSearch}
                   ></input>
                   <BsIcon.BsArrowRightShort className="ms-2" />
                   <input
                     type="date"
                     value={Query.endDate}
                     name="endDate"
-                    onChange={handleChange}
+                    onChange={handleChangeSearch}
                   ></input>
                   <button
                     disabled={
                       (!Query.startDate && Query.endDate) ||
                       (Query.startDate && !Query.endDate)
                     }
-                    onClick={() => handleClick("rangeDate")}
+                    onClick={() => handleClickSearch("rangeDate")}
                   >
-                    {isActive2 && Query.startDate !== "" ? <BsIcon.BsX /> : <BsIcon.BsSearch />}
+                    {isActive2 && Query.startDate !== "" ? (
+                      <BsIcon.BsX />
+                    ) : (
+                      <BsIcon.BsSearch />
+                    )}
                   </button>
                 </div>
               </Col>
@@ -160,12 +284,16 @@ function MainBarangMasuk() {
                     className="search"
                     type="text"
                     value={Query.search}
-                    onChange={handleChange}
+                    onChange={handleChangeSearch}
                     name="search"
                     placeholder="Search..."
                   ></input>
-                  <button onClick={() => handleClick("search")}>
-                    {isActive3 && Query.search !== "" ? <BsIcon.BsX /> : <BsIcon.BsSearch />}
+                  <button onClick={() => handleClickSearch("search")}>
+                    {isActive3 && Query.search !== "" ? (
+                      <BsIcon.BsX />
+                    ) : (
+                      <BsIcon.BsSearch />
+                    )}
                   </button>
                 </div>
               </Col>
@@ -173,9 +301,25 @@ function MainBarangMasuk() {
                 xs={2}
                 className="d-flex justify-content-center align-items-end"
               >
-                <Button variant="success" className="btn-lg">
+                <Button
+                  onClick={openModal}
+                  variant="success"
+                  className="btn-lg"
+                >
                   Tambah
                 </Button>
+
+                <ModalTransaksiBarang
+                  show={showModal}
+                  onHide={() => {
+                    setShow(false);
+                    setEdit(false);
+                  }}
+                  dataBarang={stock}
+                  handleSubmitModal={addDataModal}
+                  editModal={editModal}
+                  editMode={isEdit}
+                />
               </Col>
             </Row>
             <Row className="table-wrapper mt-4">
@@ -204,7 +348,7 @@ function MainBarangMasuk() {
                                 item.merk
                                   .toLowerCase()
                                   .includes(Query.search) ||
-                                item.jumlah
+                                item.jumlahBarangMasuk
                                   .toString()
                                   .toLowerCase()
                                   .includes(Query.search) ||
@@ -221,15 +365,27 @@ function MainBarangMasuk() {
                             <tr key={key}>
                               <td>{val.nama_barang}</td>
                               <td>{val.merk}</td>
-                              <td>{val.jumlah}</td>
+                              <td>{val.jumlahBarangMasuk}</td>
                               <td>{val.satuan}</td>
                               <td>{val.tanggal}</td>
                               <td>{val.keterangan}</td>
                               <td align="center">
-                                <Button variant="warning">Edit</Button>
+                                <Button
+                                  onClick={() => handleEdit(val)}
+                                  variant="warning"
+                                >
+                                  Edit
+                                </Button>
                               </td>
                               <td align="center">
-                                <Button variant="danger">Delete</Button>
+                                <Button
+                                  onClick={() =>
+                                    handleDelete(val.id_barangMasuk, key)
+                                  }
+                                  variant="danger"
+                                >
+                                  Delete
+                                </Button>
                               </td>
                             </tr>
                           );

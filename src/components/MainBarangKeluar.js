@@ -1,8 +1,10 @@
 import { Container, Row, Col, Button } from "react-bootstrap";
 import Table from "react-bootstrap/Table";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import * as BsIcon from "react-icons/bs";
+import Swal from "sweetalert2";
+import ModalTransaksiBarang from "./ModalTransaksiBarang";
 
 function MainBarangKeluar() {
   const [barangkeluar, setbarangkeluar] = useState([]);
@@ -16,6 +18,20 @@ function MainBarangKeluar() {
     search: "",
   });
   const Url = "http://localhost:3001";
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "bottom-end",
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: false,
+    didOpen: (toast) => {
+      toast.addEventListener("mouseenter", Swal.stopTimer);
+      toast.addEventListener("mouseleave", Swal.resumeTimer);
+    },
+  });
+  const [showModal, setShow] = useState(false);
+  const [isEdit, setEdit] = useState(false);
+  const editModal = useRef(null);
 
   useEffect(() => {
     axios.get(Url + "/barangkeluar").then((res) => {
@@ -96,7 +112,103 @@ function MainBarangKeluar() {
     }
   };
 
-  console.log(Query);
+  const openModal = () => {
+    setShow(!showModal);
+  };
+
+  const handleEdit = (val) => {
+    setShow(!showModal);
+    setEdit(true);
+    editModal.current(val);
+  };
+
+  const addDataModal = (values, actions) => {
+    if (!isEdit) {
+      axios
+        .post(Url + "/barangkeluar", values)
+        .then((res) => {
+          if (typeof res.data === "string") {
+            Swal.fire({
+              icon: "warning",
+              title: res.data,
+              showConfirmButton: false,
+              timer: 3000,
+            });
+          } else {
+            setbarangkeluar([...barangkeluar, values]);
+            setShow(false);
+            actions.resetForm();
+            Toast.fire({
+              icon: "success",
+              title: "Add data successfully",
+            });
+          }
+        })
+        .catch((err) => console.log(err));
+    } else {
+      axios
+        .put(Url + `/barangkeluar/${values.id_barang}`, values)
+        .then((res) => {
+          Toast.fire({
+            icon: "success",
+            title: "Edit data successfully",
+          });
+          setShow(false);
+          setEdit(false);
+          actions.resetForm();
+          setbarangkeluar(
+            barangkeluar.map((val) => {
+              if (val.id_barangkeluar === values.id_barang) {
+                return {
+                  ...val,
+                  nama_barang: values.nama_barang,
+                  jenis_barang: values.jenis_barang,
+                  merk: values.merk,
+                  jumlah: values.jumlah,
+                  satuan: values.satuan,
+                  harga: values.harga,
+                };
+              } else {
+                return val;
+              }
+            })
+          );
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+
+  const handleDelete = (id, key) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#009165",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .delete(Url + `/barangkeluar/${id}`)
+          .then((res) => {
+            setbarangkeluar(barangkeluar.filter((item, index) => index !== key));
+            Toast.fire({
+              icon: "success",
+              title: "Delete data successfully",
+            });
+          })
+          .catch((err) => {
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Something went wrong!",
+            });
+            console.log(err);
+          });
+      }
+    });
+  };
 
   return (
     <Col xs={10} className="main">
@@ -176,6 +288,19 @@ function MainBarangKeluar() {
                 <Button variant="success" className="btn-lg">
                   Tambah
                 </Button>
+
+                <ModalTransaksiBarang
+                  show={showModal}
+                  onHide={() => {
+                    setShow(false);
+                    setEdit(false);
+                  }}
+                  dataBarang={barangkeluar}
+                  handleSubmitModal={addDataModal}
+                  editModal={editModal}
+                  editMode={isEdit}
+                />    
+
               </Col>
             </Row>
             <Row className="table-wrapper mt-4">
