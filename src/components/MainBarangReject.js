@@ -151,6 +151,8 @@ function MainBarangReject() {
                   </button>
                 </div>
               </Col>
+              <Col xs={2}>
+              </Col>
               <Col
                 xs={4}
                 className="d-flex flex-row justify-content-end align-items-end"
@@ -168,15 +170,7 @@ function MainBarangReject() {
                     {isActive3 ? <BsIcon.BsX /> : <BsIcon.BsSearch />}
                   </button>
                 </div>
-              </Col>
-              <Col
-                xs={2}
-                className="d-flex justify-content-center align-items-end"
-              >
-                <Button variant="success" className="btn-lg">
-                  Tambah
-                </Button>
-              </Col>
+              </Col>          
             </Row>
             <Row className="table-wrapper mt-4">
               <Col>
@@ -186,9 +180,9 @@ function MainBarangReject() {
                       <tr>
                         <td>Nama Barang</td>
                         <td>Merk</td>
-                        <td>Jumlah</td>
                         <td>Satuan</td>
                         <td>Tanggal</td>
+                        <td>Jumlah</td>
                         <td>Keterangan</td>
                         <td colSpan={2}></td>
                       </tr>

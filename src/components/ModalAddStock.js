@@ -32,7 +32,7 @@ function ModalAddStock({
         nama_barang: val.nama_barang,
         jenis_barang: val.jenis_barang,
         merk: val.merk,
-        jumlah: val.jumlah,
+        // jumlah: val.jumlah,
         satuan: val.satuan,
         harga: val.harga,
       });
@@ -54,7 +54,7 @@ function ModalAddStock({
       nama_barang: "",
       jenis_barang: "",
       merk: "",
-      jumlah: "",
+      jumlah: 0,
       satuan: "",
       harga: "",
     },
@@ -68,7 +68,7 @@ function ModalAddStock({
       values.nama_barang === "" ||
       values.jenis_barang === "" ||
       values.merk === "" ||
-      values.jumlah === "" ||
+      // values.jumlah === "" ||
       values.satuan === "" ||
       values.harga === ""
     ) {
@@ -164,7 +164,7 @@ function ModalAddStock({
               onChange={handleChange}
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput4">
+          {/* <Form.Group className="mb-3" controlId="exampleForm.ControlInput4">
             {errors.jumlah === "*Required" && !submitted && (
               <span className="float-end text-danger">{errors.jumlah}</span>
             )}
@@ -182,7 +182,7 @@ function ModalAddStock({
             {errors.jumlah !== "*Required" && values.jumlah !== "" && (
               <span className="text-danger">{errors.jumlah}</span>
             )}
-          </Form.Group>
+          </Form.Group> */}
           
           <Button
             variant={editMode?"warning":"success"}

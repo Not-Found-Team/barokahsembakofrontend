@@ -4,10 +4,11 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import * as BsIcon from "react-icons/bs";
 import Swal from "sweetalert2";
-import ModalTransaksiBarang from "./ModalTransaksiBarang";
+import ModalBarangKeluar from "./ModalBarangKeluar";
 
 function MainBarangKeluar() {
   const [barangkeluar, setbarangkeluar] = useState([]);
+  const [stock, setStock] = useState([]);
   const [isActive1, setisActive1] = useState(false);
   const [isActive2, setisActive2] = useState(false);
   const [isActive3, setisActive3] = useState(false);
@@ -37,6 +38,7 @@ function MainBarangKeluar() {
     axios.get(Url + "/barangkeluar").then((res) => {
       setbarangkeluar(res.data);
     });
+    axios.get(Url + "/stock").then((res) => setStock(res.data));
   }, []);
 
   const handleChange = (evt) => {
@@ -147,7 +149,7 @@ function MainBarangKeluar() {
         .catch((err) => console.log(err));
     } else {
       axios
-        .put(Url + `/barangkeluar/${values.id_barang}`, values)
+        .put(Url + `/barangkeluar/${values.id_barangKeluar}`, values)
         .then((res) => {
           Toast.fire({
             icon: "success",
@@ -158,7 +160,7 @@ function MainBarangKeluar() {
           actions.resetForm();
           setbarangkeluar(
             barangkeluar.map((val) => {
-              if (val.id_barangkeluar === values.id_barang) {
+              if (val.id_barangKeluar === values.id_barangKeluar) {
                 return {
                   ...val,
                   nama_barang: values.nama_barang,
@@ -285,17 +287,17 @@ function MainBarangKeluar() {
                 xs={2}
                 className="d-flex justify-content-center align-items-end"
               >
-                <Button variant="success" className="btn-lg">
+                <Button onClick={openModal} variant="success" className="btn-lg">
                   Tambah
                 </Button>
 
-                <ModalTransaksiBarang
+                <ModalBarangKeluar
                   show={showModal}
                   onHide={() => {
                     setShow(false);
                     setEdit(false);
                   }}
-                  dataBarang={barangkeluar}
+                  dataBarang={stock}
                   handleSubmitModal={addDataModal}
                   editModal={editModal}
                   editMode={isEdit}
@@ -351,10 +353,10 @@ function MainBarangKeluar() {
                               <td>{val.tanggal}</td>
                               <td>{val.keterangan}</td>
                               <td align="center">
-                                <Button variant="warning">Edit</Button>
+                                <Button onClick={() => handleEdit(val)} variant="warning">Edit</Button>
                               </td>
                               <td align="center">
-                                <Button variant="danger">Delete</Button>
+                                <Button onClick={() => handleDelete(val.id_barangKeluar, key)} variant="danger">Delete</Button>
                               </td>
                             </tr>
                           );

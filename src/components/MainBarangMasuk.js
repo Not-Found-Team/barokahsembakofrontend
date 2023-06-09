@@ -18,6 +18,10 @@ function MainBarangMasuk() {
     endDate: "",
     search: "",
   });
+  const [showModal, setShow] = useState(false);
+  const [isEdit, setEdit] = useState(false);
+  const [rejcet, setReject] = useState(false)
+  const editModal = useRef(null);
   const Url = "http://localhost:3001";
   const Toast = Swal.mixin({
     toast: true,
@@ -30,9 +34,6 @@ function MainBarangMasuk() {
       toast.addEventListener("mouseleave", Swal.resumeTimer);
     },
   });
-  const [showModal, setShow] = useState(false);
-  const [isEdit, setEdit] = useState(false);
-  const editModal = useRef(null);
 
   useEffect(() => {
     axios.get(Url + "/barangmasuk").then((res) => {
@@ -131,6 +132,7 @@ function MainBarangMasuk() {
       axios
         .post(Url + "/barangmasuk", values)
         .then((res) => {
+          values.jumlahBarangReject !== "" && setReject(true)
           if (typeof res.data === "string") {
             Swal.fire({
               icon: "warning",
@@ -151,24 +153,24 @@ function MainBarangMasuk() {
         .catch((err) => console.log(err));
     } else {
       axios
-        .put(Url + `/barangmasuk/${values.id_barang}`, values)
+        .put(Url + `/barangmasuk/${values.id_barangMasuk}`, values)
         .then((res) => {
           Toast.fire({
             icon: "success",
             title: "Edit data successfully",
           });
           setShow(false);
-          setEdit(false);
+          setEdit(false);        
           actions.resetForm();
           setbarangMasuk(
             barangMasuk.map((val) => {
-              if (val.id_barangMasuk === values.id_barang) {
+              if (val.id_barangMasuk === values.id_barangMasuk) {
                 return {
                   ...val,
                   nama_barang: values.nama_barang,
                   jenis_barang: values.jenis_barang,
                   merk: values.merk,
-                  jumlah: values.jumlah,
+                  jumlahBarangMasuk: values.jumlahBarangMasuk,
                   satuan: values.satuan,
                   harga: values.harga,
                 };
@@ -181,6 +183,8 @@ function MainBarangMasuk() {
         .catch((err) => console.log(err));
     }
   };
+
+  console.log(rejcet)
 
   const handleDelete = (id, key) => {
     Swal.fire({
@@ -213,6 +217,10 @@ function MainBarangMasuk() {
       }
     });
   };
+
+  // const isReject = () => {
+
+  // }
 
   return (
     <Col xs={10} className="main">

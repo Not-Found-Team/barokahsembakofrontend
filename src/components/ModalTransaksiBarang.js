@@ -57,7 +57,7 @@ function ModalTransaksiBarang({
     if (
       values.nama_barang === "" ||
       values.merk === "" ||
-      values.jumlah === "" ||
+      values.jumlahBarangMasuk === "" ||
       values.tanggal
     ) {
       setSubmit(!submitted);
@@ -72,8 +72,10 @@ function ModalTransaksiBarang({
     }
   };
 
+  console.log(editMode);
+
   return (
-    <Modal {...props} size="lg" centered>
+    <Modal {...props} size={!editMode ? "lg":"md"} centered>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
           <Container>
@@ -84,8 +86,10 @@ function ModalTransaksiBarang({
             </Row>
             <Row>
               <Col>
-                <div className="fw-bold">Barang Masuk:</div>
-                <div className="border border-dark mb-3 w-50"></div>
+                {!editMode && [
+                  <div className="fw-bold">Barang Masuk:</div>,
+                  <div className="border border-dark mb-3 w-50"></div>,
+                ]}
                 <Form.Group
                   className="mb-3"
                   controlId="exampleForm.ControlInput1"
@@ -243,7 +247,7 @@ function ModalTransaksiBarang({
                   />
                 </Form.Group>
               </Col>
-              <Col>
+              {!editMode && (<Col>
                 <div className="fw-bold">Barang Reject:</div>
                 <div className="border border-dark mb-3 w-50"></div>
                 <Form.Group
@@ -291,7 +295,7 @@ function ModalTransaksiBarang({
                     rows={3}
                   />
                 </Form.Group>
-              </Col>
+              </Col>)}
             </Row>
           </Container>
           <Button

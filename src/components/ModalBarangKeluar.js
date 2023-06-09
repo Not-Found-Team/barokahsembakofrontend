@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form, Container, Row, Col } from "react-bootstrap";
 import { ErrorMessage, useFormik } from "formik";
-import { barangValidation } from "./FormValidation";
+import { barangKeluarValidation } from "./FormValidation";
 
-function ModalTransaksiBarang({
+function ModalBarangKeluar({
   dataBarang,
   editModal,
   editMode,
@@ -41,14 +41,13 @@ function ModalTransaksiBarang({
     initialValues: {
       nama_barang: "",
       merk: "",
-      jumlahBarangMasuk: "",
-      jumlahBarangReject: "",
+      jumlah: "",
       tanggal: "",
       satuan: "",
       keterangan: "",
       keteranganReject: "",
     },
-    validationSchema: barangValidation,
+    validationSchema: barangKeluarValidation,
     enableReinitialize: true,
     onSubmit,
   });
@@ -73,19 +72,10 @@ function ModalTransaksiBarang({
   };
 
   return (
-    <Modal {...props} size="lg" centered>
+    <Modal {...props} size="md" centered>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
-          <Container>
-            <Row>
-              <Col>
                 <h4 className="text-center fw-bold mb-4">Tambah Data</h4>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <div className="fw-bold">Barang Masuk:</div>
-                <div className="border border-dark mb-3 w-50"></div>
                 <Form.Group
                   className="mb-3"
                   controlId="exampleForm.ControlInput1"
@@ -166,28 +156,28 @@ function ModalTransaksiBarang({
                   className="mb-3"
                   controlId="exampleForm.ControlInput4"
                 >
-                  {errors.jumlahBarangMasuk === "*Required" && !submitted && (
+                  {errors.jumlah === "*Required" && !submitted && (
                     <span className="float-end text-danger">
-                      {errors.jumlahBarangMasuk}
+                      {errors.jumlah}
                     </span>
                   )}
                   <Form.Label>Jumlah</Form.Label>
                   <Form.Control
                     type="text"
-                    name="jumlahBarangMasuk"
+                    name="jumlah"
                     placeholder="Jumlah..."
-                    value={values.jumlahBarangMasuk}
+                    value={values.jumlah}
                     autoFocus
                     onBlur={handleBlur}
                     onChange={handleChange}
                     className={
-                      errors.jumlahBarangMasuk !== "*Required" ? "mb-2" : ""
+                      errors.jumlah !== "*Required" ? "mb-2" : ""
                     }
                   />
-                  {errors.jumlahBarangMasuk !== "*Required" &&
-                    values.jumlahBarangMasuk !== "" && (
+                  {errors.jumlah !== "*Required" &&
+                    values.jumlah !== "" && (
                       <span className="text-danger">
-                        {errors.jumlahBarangMasuk}
+                        {errors.jumlah}
                       </span>
                     )}
                 </Form.Group>
@@ -242,58 +232,6 @@ function ModalTransaksiBarang({
                     rows={3}
                   />
                 </Form.Group>
-              </Col>
-              <Col>
-                <div className="fw-bold">Barang Reject:</div>
-                <div className="border border-dark mb-3 w-50"></div>
-                <Form.Group
-                  className="mb-3"
-                  controlId="exampleForm.ControlInput4"
-                >
-                  {errors.jumlahBarangReject === "*Required" && !submitted && (
-                    <span className="float-end text-danger">
-                      {errors.jumlahBarangReject}
-                    </span>
-                  )}
-                  <Form.Label>Jumlah</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="jumlahBarangReject"
-                    placeholder="Jumlah..."
-                    value={values.jumlahBarangReject}
-                    autoFocus
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    className={
-                      errors.jumlahBarangReject !== "*Required" ? "mb-2" : ""
-                    }
-                  />
-                  {errors.jumlahBarangReject !== "*Required" &&
-                    touched.jumlahBarangReject &&
-                    values.jumlahBarangReject !== "" && (
-                      <span className="text-danger">
-                        {errors.jumlahBarangReject}
-                      </span>
-                    )}
-                </Form.Group>
-                <Form.Group
-                  className="mb-3"
-                  controlId="exampleForm.ControlInput4"
-                >
-                  <Form.Label>Keterangan</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    name="keteranganReject"
-                    value={values.keteranganReject}
-                    autoFocus
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    rows={3}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-          </Container>
           <Button
             variant={editMode ? "warning" : "success"}
             type="submit"
@@ -321,4 +259,4 @@ function ModalTransaksiBarang({
   );
 }
 
-export default ModalTransaksiBarang;
+export default ModalBarangKeluar;
