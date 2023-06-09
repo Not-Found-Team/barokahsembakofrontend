@@ -6,7 +6,9 @@ import axios from "axios";
 import ModalAddStock from "./ModalAddStock";
 import Swal from "sweetalert2";
 
-function MainStock() {
+function MainStock(props) {
+  const user = props?.user;
+  console.log(user);
   const Url = "http://localhost:3001";
   const Toast = Swal.mixin({
     toast: true,
@@ -43,7 +45,7 @@ function MainStock() {
       axios
         .get(
           Url +
-            `/stock/search?search="${Query}"`
+          `/stock/search?search="${Query}"`
         )
         .then((res) => {
           setStock(res.data);
@@ -159,8 +161,8 @@ function MainStock() {
           });
       }
     });
-  };
-
+  };  
+  
   return (
     <Col xs={10} className="main">
       <Container>
@@ -194,13 +196,15 @@ function MainStock() {
                 xs={2}
                 className="d-flex justify-content-center align-items-end"
               >
-                <Button
-                  variant="success"
-                  className="btn-lg"
-                  onClick={openModal}
-                >
-                  Tambah
-                </Button>
+                {user?.role == "admin" &&
+                  <Button
+                    variant="success"
+                    className="btn-lg"
+                    onClick={openModal}
+                  >
+                    Tambah
+                  </Button>
+                }
 
                 <ModalAddStock
                   show={showModal}
@@ -235,12 +239,12 @@ function MainStock() {
                         return Query.toLowerCase() === ""
                           ? item
                           : item.nama_barang.toLowerCase().includes(Query) ||
-                              item.merk.toLowerCase().includes(Query) ||
-                              item.jumlah
-                                .toString()
-                                .toLowerCase()
-                                .includes(Query) ||
-                              item.satuan.toLowerCase().includes(Query);
+                          item.merk.toLowerCase().includes(Query) ||
+                          item.jumlah
+                            .toString()
+                            .toLowerCase()
+                            .includes(Query) ||
+                          item.satuan.toLowerCase().includes(Query);
                       }).map((val, key) => {
                         return (
                           <tr key={key}>

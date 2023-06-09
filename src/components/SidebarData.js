@@ -5,7 +5,7 @@ export const sidebarData = [
   {
     title: "Stock",
     icon: <FaIcon.FaBoxOpen />,
-    link: "/",
+    link: "",
   },  
   {
     title: "Barang Masuk",
