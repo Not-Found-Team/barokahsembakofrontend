@@ -14,7 +14,7 @@ function MainDashboard() {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("user")) ?? undefined;
     const url = useResolvedPath("").pathname;
-    console.log(user);
+    // console.log(user);
     useEffect(()=>{
         if (!!!user) return navigate('/Login');
     },[])
@@ -25,12 +25,12 @@ function MainDashboard() {
             </Container>
             <Container fluid className="mt-5 position-fixed pt-2">
                 <Row className="mt-4">
-                    <Sidebar url={url} />
+                    <Sidebar user={user} url={url} />
                     <Routes>
                         <Route path={`/`} element={<MainStock user={user} />} />
-                        <Route path={`/barangmasuk`} element={<MainBarangMasuk />} />
-                        <Route path={`/barangkeluar`} element={<MainBarangKeluar />} />
-                        <Route path={`/barangreject`} element={<MainBarangReject />} />
+                        <Route path={`/barangmasuk`} element={<MainBarangMasuk user={user} />} />
+                        <Route path={`/barangkeluar`} element={<MainBarangKeluar user={user} />} />
+                        <Route path={`/barangreject`} element={<MainBarangReject user={user} />} />
                         <Route path={`/"*"`} element={<NotFound />} />
                     </Routes>
                 </Row>

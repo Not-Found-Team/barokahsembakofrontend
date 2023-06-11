@@ -1,11 +1,16 @@
 import { Container, Row, Col, Button } from "react-bootstrap";
 import Table from "react-bootstrap/Table";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import * as BsIcon from "react-icons/bs";
+import ModalBarangReject from "./ModalBarangReject";
+import Swal from "sweetalert2";
 
-function MainBarangReject() {
+function MainBarangReject(props) {
+  const user = props?.user
   const [barangreject, setbarangreject] = useState([]);
+  const [stock, setStock] = useState([])
+  const [showModal, setShow] = useState(false)
   const [isActive1, setisActive1] = useState(false);
   const [isActive2, setisActive2] = useState(false);
   const [isActive3, setisActive3] = useState(false);
@@ -15,12 +20,27 @@ function MainBarangReject() {
     endDate: "",
     search: "",
   });
+  const editModal = useRef(null)
   const Url = "http://localhost:3001";
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "bottom-end",
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: false,
+    didOpen: (toast) => {
+      toast.addEventListener("mouseenter", Swal.stopTimer);
+      toast.addEventListener("mouseleave", Swal.resumeTimer);
+    },
+  });
 
   useEffect(() => {
     axios.get(Url + "/barangreject").then((res) => {
       setbarangreject(res.data);
     });
+    axios.get(Url + '/stock').then(res => {
+      setStock(res.data)
+    })
   }, []);
 
   const handleChange = (evt) => {
@@ -95,9 +115,75 @@ function MainBarangReject() {
       }
     }
   };
+  
+  const handleEdit = (val) => {
+    setShow(!showModal);
+    editModal.current(val);
+  };
 
-  console.log(Query.search, barangreject);
-
+  const addDataModal = (values, actions) => {
+      axios
+        .put(Url + `/barangreject/${values.idBarangReject}`, values)
+        .then((res) => {
+          Toast.fire({
+            icon: "success",
+            title: "Edit data successfully",
+          });
+          setShow(false);
+          actions.resetForm();
+          setbarangreject(
+            barangreject.map((val) => {
+              if (val.idBarangReject === values.idBarangReject) {
+                return {
+                  ...val,
+                  nama_barang: values.nama_barang,
+                  jenis_barang: values.jenis_barang,
+                  merk: values.merk,
+                  jumlah: values.jumlah,
+                  satuan: values.satuan,
+                  harga: values.harga,
+                };
+              } else {
+                return val;
+              }
+            })
+          );
+        })
+        .catch((err) => console.log(err));
+  };
+  console.log(barangreject)
+  const handleDelete = (id, key) => {
+    console.log(id)
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#009165",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .delete(Url + `/barangreject/${id}`)
+          .then((res) => {
+            setbarangreject(barangreject.filter((item, index) => index !== key));
+            Toast.fire({
+              icon: "success",
+              title: "Delete data successfully",
+            });
+          })
+          .catch((err) => {
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Something went wrong!",
+            });
+            console.log(err);
+          });
+      }
+    });
+  };
   return (
     <Col xs={10} className="main">
       <Container>
@@ -151,13 +237,11 @@ function MainBarangReject() {
                   </button>
                 </div>
               </Col>
-              <Col xs={2}>
-              </Col>
               <Col
-                xs={4}
+                xs={6}
                 className="d-flex flex-row justify-content-end align-items-end"
               >
-                <div className="search-wrapper">
+                <div className="search-wrapper justify-content-between w-50">
                   <input
                     className="search"
                     type="text"
@@ -180,11 +264,11 @@ function MainBarangReject() {
                       <tr>
                         <td>Nama Barang</td>
                         <td>Merk</td>
+                        <td>Jumlah</td>
                         <td>Satuan</td>
                         <td>Tanggal</td>
-                        <td>Jumlah</td>
                         <td>Keterangan</td>
-                        <td colSpan={2}></td>
+                        {user?.role == "admin" && <td colSpan={2}></td>}
                       </tr>
                     </thead>
                     <tbody>
@@ -219,18 +303,38 @@ function MainBarangReject() {
                               <td>{val.satuan}</td>
                               <td>{val.tanggal}</td>
                               <td>{val.keterangan}</td>
+                              {user?.role == "admin" && [<td align="center">
+                                <Button onClick={() => handleEdit(val)} variant="warning">Edit</Button>
+                              </td>,
                               <td align="center">
-                                <Button variant="warning">Edit</Button>
-                              </td>
-                              <td align="center">
-                                <Button variant="danger">Delete</Button>
-                              </td>
+                                <Button onClick={() => handleDelete(val.idBarangReject, key)} variant="danger">Delete</Button>
+                              </td>]}
                             </tr>
                           );
                         })}
                     </tbody>
+                    <tfoot>
+                      <tr>
+                        <td>Nama Barang</td>
+                        <td>Merk</td>
+                        <td>Jenis Barang</td>
+                        <td>Jumlah</td>
+                        <td>Satuan</td>
+                        <td>Harga</td>
+                        {user?.role == "admin" && <td colSpan={2}></td>}
+                      </tr>
+                    </tfoot>
                   </Table>
                 </div>
+                <ModalBarangReject
+                  show={showModal}
+                  onHide={() => {
+                    setShow(false);
+                  }}
+                  dataBarang={stock}
+                  handleSubmitModal={addDataModal}
+                  editModal={editModal}
+                />
               </Col>
             </Row>
           </Col>

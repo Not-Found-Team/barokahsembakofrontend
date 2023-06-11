@@ -6,7 +6,8 @@ import * as BsIcon from "react-icons/bs";
 import Swal from "sweetalert2";
 import ModalBarangKeluar from "./ModalBarangKeluar";
 
-function MainBarangKeluar() {
+function MainBarangKeluar(props) {
+  const user = props?.user;
   const [barangkeluar, setbarangkeluar] = useState([]);
   const [stock, setStock] = useState([]);
   const [isActive1, setisActive1] = useState(false);
@@ -194,7 +195,9 @@ function MainBarangKeluar() {
         axios
           .delete(Url + `/barangkeluar/${id}`)
           .then((res) => {
-            setbarangkeluar(barangkeluar.filter((item, index) => index !== key));
+            setbarangkeluar(
+              barangkeluar.filter((item, index) => index !== key)
+            );
             Toast.fire({
               icon: "success",
               title: "Delete data successfully",
@@ -266,10 +269,16 @@ function MainBarangKeluar() {
                 </div>
               </Col>
               <Col
-                xs={4}
+                xs={user?.role == "admin" ? 4 : 6}
                 className="d-flex flex-row justify-content-end align-items-end"
               >
-                <div className="search-wrapper">
+                <div
+                  className={
+                    user?.role == "admin"
+                      ? "search-wrapper"
+                      : "search-wrapper justify-content-between w-50"
+                  }
+                >
                   <input
                     className="search"
                     type="text"
@@ -283,11 +292,15 @@ function MainBarangKeluar() {
                   </button>
                 </div>
               </Col>
-              <Col
+              {user?.role == "admin" && [<Col
                 xs={2}
                 className="d-flex justify-content-center align-items-end"
               >
-                <Button onClick={openModal} variant="success" className="btn-lg">
+                <Button
+                  onClick={openModal}
+                  variant="success"
+                  className="btn-lg"
+                >
                   Tambah
                 </Button>
 
@@ -301,9 +314,8 @@ function MainBarangKeluar() {
                   handleSubmitModal={addDataModal}
                   editModal={editModal}
                   editMode={isEdit}
-                />    
-
-              </Col>
+                />
+              </Col>]}
             </Row>
             <Row className="table-wrapper mt-4">
               <Col>
@@ -317,7 +329,7 @@ function MainBarangKeluar() {
                         <td>Satuan</td>
                         <td>Tanggal</td>
                         <td>Keterangan</td>
-                        <td colSpan={2}></td>
+                        {user?.role == "admin" && <td colSpan={2}></td>}
                       </tr>
                     </thead>
                     <tbody>
@@ -352,16 +364,39 @@ function MainBarangKeluar() {
                               <td>{val.satuan}</td>
                               <td>{val.tanggal}</td>
                               <td>{val.keterangan}</td>
+                              {user?.role == "admin" && [<td align="center">
+                                <Button
+                                  onClick={() => handleEdit(val)}
+                                  variant="warning"
+                                >
+                                  Edit
+                                </Button>
+                              </td>,
                               <td align="center">
-                                <Button onClick={() => handleEdit(val)} variant="warning">Edit</Button>
-                              </td>
-                              <td align="center">
-                                <Button onClick={() => handleDelete(val.id_barangKeluar, key)} variant="danger">Delete</Button>
-                              </td>
+                                <Button
+                                  onClick={() =>
+                                    handleDelete(val.id_barangKeluar, key)
+                                  }
+                                  variant="danger"
+                                >
+                                  Delete
+                                </Button>
+                              </td>]}
                             </tr>
                           );
                         })}
                     </tbody>
+                    <tfoot>
+                      <tr>
+                        <td>Nama Barang</td>
+                        <td>Merk</td>
+                        <td>Jenis Barang</td>
+                        <td>Jumlah</td>
+                        <td>Satuan</td>
+                        <td>Harga</td>
+                        {user?.role == "admin" && <td colSpan={2}></td>}
+                      </tr>
+                    </tfoot>
                   </Table>
                 </div>
               </Col>

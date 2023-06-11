@@ -10,9 +10,7 @@ export const stockValidation = yup.object().shape({
   //   .positive("Harap masukkan input dengan benar")
   //   .max(1000001, "Harap masukkan input dengan benar")
   //   .required("*Required"),
-  satuan: yup
-    .string()
-    .required("*Required"),
+  satuan: yup.string().required("*Required"),
   harga: yup
     .number()
     .typeError("Harga barang harus berupa angka")
@@ -23,21 +21,33 @@ export const stockValidation = yup.object().shape({
 export const barangValidation = yup.object().shape({
   nama_barang: yup.string().required("*Required"),
   merk: yup.string().required("*Required"),
-  jumlahBarangMasuk: yup
+  harga: yup
     .number()
     .typeError("Jumlah barang harus berupa angka")
     .positive("Harap masukkan input dengan benar")
     .max(1000001, "Harap masukkan input dengan benar")
     .required("*Required"),
   jumlahBarangReject: yup
-    .number()
+    .number().test('compare', 'Jumlah barang tidak mencukupi',
+    function(value) {
+      let val2 = this.resolve(yup.ref('jumlahBarangMasuk'))
+      if (value > val2) {
+        return false
+      } else {
+        return true
+      }
+    })
     .typeError("Jumlah barang harus berupa angka")
     .positive("Harap masukkan input dengan benar")
     .max(1000001, "Harap masukkan input dengan benar"),
-  tanggal: yup.string().required("*Required"),
-  satuan: yup
-    .string()
+  jumlahBarangMasuk: yup
+    .number()
+    .typeError("Jumlah barang harus berupa angka")
+    .positive("Harap masukkan input dengan benar")
+    .max(1000001, "Harap masukkan input dengan benar")
     .required("*Required"),
+  tanggal: yup.string().required("*Required"),
+  satuan: yup.string().required("*Required"),
 });
 
 export const barangKeluarValidation = yup.object().shape({
@@ -50,9 +60,7 @@ export const barangKeluarValidation = yup.object().shape({
     .max(1000001, "Harap masukkan input dengan benar")
     .required("*Required"),
   tanggal: yup.string().required("*Required"),
-  satuan: yup
-    .string()
-    .required("*Required"),
+  satuan: yup.string().required("*Required"),
 });
 
 export const barangRejectValidation = yup.object().shape({
@@ -65,7 +73,5 @@ export const barangRejectValidation = yup.object().shape({
     .max(1000001, "Harap masukkan input dengan benar")
     .required("*Required"),
   tanggal: yup.string().required("*Required"),
-  satuan: yup
-    .string()
-    .required("*Required"),
+  satuan: yup.string().required("*Required"),
 });

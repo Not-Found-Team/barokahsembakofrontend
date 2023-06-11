@@ -40,38 +40,40 @@ function Login() {
     };
 
     return (
-        <div className="container">
+        <div className="d-flex justify-content-center align-items-center vh-100 container">
             {isError &&
                 <Alert variant="danger">
                     {errorMsg}
                 </Alert>
             }
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group mb-2">
-                    <label htmlFor="username">Username</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="form-group mb-2">
-                    <label htmlFor="password">Password</label>
-                    <input
-                        type="password"
-                        className="form-control"
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </div>
-                <button type="submit" className="btn btn-primary">Submit</button>
-            </form>
+            <div className="form-login">
+            <h2 className='text-center fw-bold m-4 fs-3'>Login</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group mb-4">
+                        <label className='mb-2 fw-bold' htmlFor="username">Username</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group mb-2">
+                        <label className="mb-2 fw-bold" htmlFor="password">Password</label>
+                        <input
+                            type="password"
+                            className="form-control"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="btn btn-success float-end mt-5">Submit</button>
+                </form>
+            </div>
         </div>
     );
 }

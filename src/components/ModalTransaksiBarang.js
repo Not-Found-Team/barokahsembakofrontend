@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form, Container, Row, Col } from "react-bootstrap";
-import { ErrorMessage, useFormik } from "formik";
+import { useFormik } from "formik";
 import { barangValidation } from "./FormValidation";
 
 function ModalTransaksiBarang({
@@ -25,6 +25,8 @@ function ModalTransaksiBarang({
   const onEdit = (val) => {
     const name = Object.keys(val);
     name.map((name) => setFieldValue(name, val[name]));
+    setFieldValue("jenis_barang", "dumy");
+    setFieldValue("harga", 1);
   };
 
   const {
@@ -41,6 +43,7 @@ function ModalTransaksiBarang({
     initialValues: {
       nama_barang: "",
       merk: "",
+      harga: "",
       jumlahBarangMasuk: "",
       jumlahBarangReject: "",
       tanggal: "",
@@ -53,6 +56,9 @@ function ModalTransaksiBarang({
     onSubmit,
   });
 
+  console.log(values);
+  console.log(errors);
+
   const handleErrorSubmit = () => {
     if (
       values.nama_barang === "" ||
@@ -64,18 +70,18 @@ function ModalTransaksiBarang({
     }
   };
 
-  const handleSuggestion = (val) => {
-    values.nama_barang && setFieldValue("nama_barang", val.nama_barang);
-    values.merk && setFieldValue("merk", val.merk);
-    if (values.nama_barang === val.nama_barang || values.merk === val.merk) {
-      setFieldValue("satuan", val.satuan);
-    }
-  };
+  // const handleSuggestion = (val) => {
+  //   values.nama_barang && setFieldValue("nama_barang", val.nama_barang);
+  //   values.merk && setFieldValue("merk", val.merk);
+  //   if (values.nama_barang === val.nama_barang || values.merk === val.merk) {
+  //     setFieldValue("satuan", val.satuan);
+  //   }
+  // };
 
   console.log(editMode);
 
   return (
-    <Modal {...props} size={!editMode ? "lg":"md"} centered>
+    <Modal {...props} size="lg" centered>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
           <Container>
@@ -85,11 +91,9 @@ function ModalTransaksiBarang({
               </Col>
             </Row>
             <Row>
-              <Col>
-                {!editMode && [
-                  <div className="fw-bold">Barang Masuk:</div>,
-                  <div className="border border-dark mb-3 w-50"></div>,
-                ]}
+              <Col xs={6}>
+                <div className="fw-bold">Barang Masuk:</div>
+                <div className="border border-dark mb-3 w-50"></div>
                 <Form.Group
                   className="mb-3"
                   controlId="exampleForm.ControlInput1"
@@ -110,25 +114,6 @@ function ModalTransaksiBarang({
                     onChange={handleChange}
                   />
                 </Form.Group>
-                {values.nama_barang && (
-                  <div className="search-result mb-2 ps-2 rounded">
-                    {dataBarang
-                      .filter((val) => {
-                        return (
-                          values.nama_barang &&
-                          val.nama_barang
-                            .toLowerCase()
-                            .includes(values.nama_barang.toLowerCase()) &&
-                          values.nama_barang !== val.nama_barang
-                        );
-                      })
-                      .map((val, key) => (
-                        <div key={key} onClick={() => handleSuggestion(val)}>
-                          {val.nama_barang}
-                        </div>
-                      ))}
-                  </div>
-                )}
                 <Form.Group
                   className="mb-3"
                   controlId="exampleForm.ControlInput2"
@@ -147,24 +132,69 @@ function ModalTransaksiBarang({
                     onChange={handleChange}
                   />
                 </Form.Group>
-                {values.merk && (
-                  <div className="search-result mb-2 ps-2 rounded">
-                    {dataBarang
-                      .filter((val) => {
-                        return (
-                          values.nama_barang === val.nama_barang &&
-                          val.merk
-                            .toLowerCase()
-                            .includes(values.merk.toLowerCase()) &&
-                          values.merk !== val.merk
-                        );
-                      })
-                      .map((val, key) => (
-                        <div key={key} onClick={() => handleSuggestion(val)}>
-                          {val.merk}
-                        </div>
-                      ))}
-                  </div>
+                {/* {values.nama_barang && (
+                      <div className="search-result mb-2 ps-2 rounded">
+                        {dataBarang
+                          .filter((val) => {
+                            return (
+                              values.nama_barang &&
+                              val.nama_barang
+                                .toLowerCase()
+                                .includes(values.nama_barang.toLowerCase()) &&
+                              values.nama_barang !== val.nama_barang
+                            );
+                          })
+                          .map((val, key) => (
+                            <div key={key} onClick={() => handleSuggestion(val)}>
+                              {val.nama_barang}
+                            </div>
+                          ))}
+                      </div>
+                    )} */}
+                {/* {values.merk && (
+                      <div className="search-result mb-2 ps-2 rounded">
+                        {dataBarang
+                          .filter((val) => {
+                            return (
+                              values.nama_barang === val.nama_barang &&
+                              val.merk
+                                .toLowerCase()
+                                .includes(values.merk.toLowerCase()) &&
+                              values.merk !== val.merk
+                            );
+                          })
+                          .map((val, key) => (
+                            <div key={key} onClick={() => handleSuggestion(val)}>
+                              {val.merk}
+                            </div>
+                          ))}
+                      </div>
+                    )} */}
+                {!editMode && (
+                  <Form.Group
+                    className="mb-3"
+                    controlId="exampleForm.ControlInput4"
+                  >
+                    {errors.harga === "*Required" && !submitted && (
+                      <span className="float-end text-danger">
+                        {errors.harga}
+                      </span>
+                    )}
+                    <Form.Label>Harga</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="harga"
+                      placeholder="Harga..."
+                      value={values.harga}
+                      autoFocus
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      className={errors.harga !== "*Required" ? "mb-2" : ""}
+                    />
+                    {errors.harga !== "*Required" && values.harga !== "" && (
+                      <span className="text-danger">{errors.harga}</span>
+                    )}
+                  </Form.Group>
                 )}
                 <Form.Group
                   className="mb-3"
@@ -209,7 +239,6 @@ function ModalTransaksiBarang({
                     type="text"
                     name="satuan"
                     placeholder="Satuan..."
-                    disabled={values.nama_barang && values.merk && "disabled"}
                     value={values.satuan}
                     autoFocus
                     onBlur={handleBlur}
@@ -231,6 +260,8 @@ function ModalTransaksiBarang({
                     onChange={handleChange}
                   />
                 </Form.Group>
+              </Col>
+              <Col>
                 <Form.Group
                   className="mb-3"
                   controlId="exampleForm.ControlInput4"
@@ -246,8 +277,6 @@ function ModalTransaksiBarang({
                     rows={3}
                   />
                 </Form.Group>
-              </Col>
-              {!editMode && (<Col>
                 <div className="fw-bold">Barang Reject:</div>
                 <div className="border border-dark mb-3 w-50"></div>
                 <Form.Group
@@ -295,7 +324,7 @@ function ModalTransaksiBarang({
                     rows={3}
                   />
                 </Form.Group>
-              </Col>)}
+              </Col>
             </Row>
           </Container>
           <Button

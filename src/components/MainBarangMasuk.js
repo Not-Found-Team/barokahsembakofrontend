@@ -6,7 +6,8 @@ import * as BsIcon from "react-icons/bs";
 import Swal from "sweetalert2";
 import ModalTransaksiBarang from "./ModalTransaksiBarang";
 
-function MainBarangMasuk() {
+function MainBarangMasuk(props) {
+  const user = props?.user;
   const [barangMasuk, setbarangMasuk] = useState([]);
   const [stock, setStock] = useState([]);
   const [isActive1, setisActive1] = useState(false);
@@ -20,7 +21,6 @@ function MainBarangMasuk() {
   });
   const [showModal, setShow] = useState(false);
   const [isEdit, setEdit] = useState(false);
-  const [rejcet, setReject] = useState(false)
   const editModal = useRef(null);
   const Url = "http://localhost:3001";
   const Toast = Swal.mixin({
@@ -42,7 +42,7 @@ function MainBarangMasuk() {
 
     axios.get(Url + "/stock").then((res) => setStock(res.data));
   }, []);
-  
+
   const handleChangeSearch = (evt) => {
     const value = evt.target.value;
     setQuery({
@@ -127,12 +127,11 @@ function MainBarangMasuk() {
   };
 
   const addDataModal = (values, actions) => {
-    console.log(values)
+    console.log(values);
     if (!isEdit) {
       axios
         .post(Url + "/barangmasuk", values)
         .then((res) => {
-          values.jumlahBarangReject !== "" && setReject(true)
           if (typeof res.data === "string") {
             Swal.fire({
               icon: "warning",
@@ -155,36 +154,34 @@ function MainBarangMasuk() {
       axios
         .put(Url + `/barangmasuk/${values.id_barangMasuk}`, values)
         .then((res) => {
-          Toast.fire({
-            icon: "success",
-            title: "Edit data successfully",
-          });
-          setShow(false);
-          setEdit(false);        
-          actions.resetForm();
-          setbarangMasuk(
-            barangMasuk.map((val) => {
-              if (val.id_barangMasuk === values.id_barangMasuk) {
-                return {
-                  ...val,
-                  nama_barang: values.nama_barang,
-                  jenis_barang: values.jenis_barang,
-                  merk: values.merk,
-                  jumlahBarangMasuk: values.jumlahBarangMasuk,
-                  satuan: values.satuan,
-                  harga: values.harga,
-                };
-              } else {
-                return val;
-              }
-            })
-          );
+            Toast.fire({
+              icon: "success",
+              title: "Edit data successfully",
+            });
+            setShow(false);
+            setEdit(false);
+            actions.resetForm();
+            setbarangMasuk(
+              barangMasuk.map((val) => {
+                if (val.id_barangMasuk === values.id_barangMasuk) {
+                  return {
+                    ...val,
+                    nama_barang: values.nama_barang,
+                    jenis_barang: values.jenis_barang,
+                    merk: values.merk,
+                    jumlahBarangMasuk: values.jumlahBarangMasuk,
+                    satuan: values.satuan,
+                    harga: values.harga,
+                  };
+                } else {
+                  return val;
+                }
+              })
+            );            
         })
         .catch((err) => console.log(err));
     }
   };
-
-  console.log(rejcet)
 
   const handleDelete = (id, key) => {
     Swal.fire({
@@ -284,10 +281,16 @@ function MainBarangMasuk() {
                 </div>
               </Col>
               <Col
-                xs={4}
+                xs={user?.role === "admin" ? 4 : 6}
                 className="d-flex flex-row justify-content-end align-items-end"
               >
-                <div className="search-wrapper">
+                <div
+                  className={
+                    user?.role === "admin"
+                      ? "search-wrapper"
+                      : "search-wrapper justify-content-between w-50"
+                  }
+                >
                   <input
                     className="search"
                     type="text"
@@ -305,30 +308,32 @@ function MainBarangMasuk() {
                   </button>
                 </div>
               </Col>
-              <Col
-                xs={2}
-                className="d-flex justify-content-center align-items-end"
-              >
-                <Button
-                  onClick={openModal}
-                  variant="success"
-                  className="btn-lg"
+              {user?.role === "admin" && (
+                <Col
+                  xs={2}
+                  className="d-flex justify-content-center align-items-end"
                 >
-                  Tambah
-                </Button>
+                  <Button
+                    onClick={openModal}
+                    variant="success"
+                    className="btn-lg"
+                  >
+                    Tambah
+                  </Button>
 
-                <ModalTransaksiBarang
-                  show={showModal}
-                  onHide={() => {
-                    setShow(false);
-                    setEdit(false);
-                  }}
-                  dataBarang={stock}
-                  handleSubmitModal={addDataModal}
-                  editModal={editModal}
-                  editMode={isEdit}
-                />
-              </Col>
+                  <ModalTransaksiBarang
+                    show={showModal}
+                    onHide={() => {
+                      setShow(false);
+                      setEdit(false);
+                    }}
+                    dataBarang={stock}
+                    handleSubmitModal={addDataModal}
+                    editModal={editModal}
+                    editMode={isEdit}
+                  />
+                </Col>
+              )}
             </Row>
             <Row className="table-wrapper mt-4">
               <Col>
@@ -342,7 +347,7 @@ function MainBarangMasuk() {
                         <td>Satuan</td>
                         <td>Tanggal</td>
                         <td>Keterangan</td>
-                        <td colSpan={2}></td>
+                        {user?.role === "admin" && <td colSpan={2}></td>}
                       </tr>
                     </thead>
                     <tbody>
@@ -377,28 +382,41 @@ function MainBarangMasuk() {
                               <td>{val.satuan}</td>
                               <td>{val.tanggal}</td>
                               <td>{val.keterangan}</td>
-                              <td align="center">
-                                <Button
-                                  onClick={() => handleEdit(val)}
-                                  variant="warning"
-                                >
-                                  Edit
-                                </Button>
-                              </td>
-                              <td align="center">
-                                <Button
-                                  onClick={() =>
-                                    handleDelete(val.id_barangMasuk, key)
-                                  }
-                                  variant="danger"
-                                >
-                                  Delete
-                                </Button>
-                              </td>
+                              {user?.role === "admin" && [
+                                <td align="center">
+                                  <Button
+                                    onClick={() => handleEdit(val)}
+                                    variant="warning"
+                                  >
+                                    Edit
+                                  </Button>
+                                </td>,
+                                <td align="center">
+                                  <Button
+                                    onClick={() =>
+                                      handleDelete(val.id_barangMasuk, key)
+                                    }
+                                    variant="danger"
+                                  >
+                                    Delete
+                                  </Button>
+                                </td>,
+                              ]}
                             </tr>
                           );
                         })}
                     </tbody>
+                    <tfoot>
+                      <tr>
+                        <td>Nama Barang</td>
+                        <td>Merk</td>
+                        <td>Jenis Barang</td>
+                        <td>Jumlah</td>
+                        <td>Satuan</td>
+                        <td>Harga</td>
+                        {user?.role === "admin" && <td colSpan={2}></td>}
+                      </tr>
+                    </tfoot>
                   </Table>
                 </div>
               </Col>
